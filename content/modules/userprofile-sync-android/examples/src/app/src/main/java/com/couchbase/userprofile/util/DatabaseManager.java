@@ -17,9 +17,11 @@ import com.couchbase.lite.Expression;
 import com.couchbase.lite.IndexBuilder;
 import com.couchbase.lite.ListenerToken;
 import com.couchbase.lite.Replicator;
+import com.couchbase.lite.ReplicatorActivityLevel;
 import com.couchbase.lite.ReplicatorChange;
 import com.couchbase.lite.ReplicatorChangeListener;
 import com.couchbase.lite.ReplicatorConfiguration;
+import com.couchbase.lite.ReplicatorType;
 import com.couchbase.lite.URLEndpoint;
 import com.couchbase.lite.ValueIndexItem;
 
@@ -170,9 +172,10 @@ public class DatabaseManager {
 
         // tag::replicationconfig[]
         ReplicatorConfiguration config = new ReplicatorConfiguration(userprofileDatabase, new URLEndpoint(url)); // <1>
-        config.setReplicatorType(ReplicatorConfiguration.ReplicatorType.PUSH_AND_PULL); // <2>
+        config.setType(ReplicatorType.PUSH_AND_PULL); // <2>
         config.setContinuous(true); // <3>
-        config.setAuthenticator(new BasicAuthenticator(username, password)); // <4>
+
+        config.setAuthenticator(new BasicAuthenticator(username, password.toCharArray())); // <4>
         config.setChannels(Arrays.asList("channel." + username)); // <5>
         // end::replicationconfig[]
 
@@ -185,11 +188,11 @@ public class DatabaseManager {
             @Override
             public void changed(ReplicatorChange change) {
 
-                if (change.getReplicator().getStatus().getActivityLevel().equals(Replicator.ActivityLevel.IDLE)) {
+                if (change.getReplicator().getStatus().getActivityLevel().equals(ReplicatorActivityLevel.IDLE)) {
                     Log.e("Replication Comp Log", "Scheduler Completed");
                 }
-                if (change.getReplicator().getStatus().getActivityLevel().equals(Replicator.ActivityLevel.STOPPED)
-                        || change.getReplicator().getStatus().getActivityLevel().equals(Replicator.ActivityLevel.OFFLINE)) {
+                if (change.getReplicator().getStatus().getActivityLevel().equals(ReplicatorActivityLevel.STOPPED)
+                        || change.getReplicator().getStatus().getActivityLevel().equals(ReplicatorActivityLevel.OFFLINE)) {
                     Log.e("Rep Scheduler  Log", "ReplicationTag Stopped");
                 }
             }
