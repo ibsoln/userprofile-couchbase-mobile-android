@@ -5,10 +5,8 @@
 :quick-uri: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 ifndef::env-site,env-github[]
 :toc: left
-:toclevels: 3
+:page-toclevels: 3@
 endif::[]
-:examplesdir: ../../examples
-:imagesdir: ../../assets/images
 :githubsrc: https://github.com/couchbaselabs/userprofile-couchbase-mobile-android/tree/query/modules/userprofile/examples/src
 
 toc::[]
@@ -17,23 +15,32 @@ toc::[]
 == Introduction
 
 
-Couchbase Lite brings powerful querying and Full-Text-Search(FTS) capabilties to the edge.
-The new query interface is based on link:https://www.couchbase.com/products/n1ql[N1QL], Couchbase’s declarative query language that extends link:https://www.sqlite.org/index.html[SQL] for JSON.
-If you are familiar with SQL, you will feel right at home with the semantics of the new API.
-The query API is designed using the link:https://en.wikipedia.org/wiki/Fluent_interface[Fluent API Design Pattern], and it uses method cascading to read to like a Domain Specific Language (DSL).
+Couchbase Lite brings powerful querying and Full-Text-Search(FTS) capabilities to the edge.
+
+Its query interface is based on
+https://www.couchbase.com/products/n1ql[N1QL],
+Couchbase’s declarative query language that extends
+https://www.sqlite.org/index.html[SQL]
+for JSON.
+So, if you are familiar with SQL, you will feel right at home with the semantics of the new API.
+
+The query API is designed using the
+https://en.wikipedia.org/wiki/Fluent_interface[Fluent API Design Pattern],
+and uses method cascading to read like a Domain Specific Language (DSL).
 This makes the interface very intuitive and easy to understand.
 
 Couchbase Lite can be used as a standalone embedded database within your mobile app.
 
 .What You Will Learn
 ****
-This tutorial will walk through a simple Android app that will
+This tutorial will walk through a simple Android app that will:
 
-* Demonstrate how you can bundle, load and use a  **_prebuilt_** instance of Couchbase Lite 2.0
+* Demonstrate how you can bundle, load and use a *_prebuilt_* instance of Couchbase Lite
 * Introduce you to the basics of the `QueryBuilder` interface
 
 ====
-You can learn more about Couchbase Mobile https://developer.couchbase.com/mobile[here]
+You can learn more about Couchbase Mobile
+https://developer.couchbase.com/mobile[here]
 ====
 ****
 
@@ -41,19 +48,32 @@ You can learn more about Couchbase Mobile https://developer.couchbase.com/mobile
 == Prerequisites
 
 
-This tutorial assumes familiarity with building link:https://www.android.com/[Android] apps using link:https://www.java.com[Java] and with the basics of Couchbase Lite.
+This tutorial assumes familiarity with building
+https://www.android.com/[Android]
+apps using
+https://www.java.com[Java]
+and with the basics of Couchbase Lite.
 
-* If you are unfamiliar with the basics of Couchbase Lite, it is recommended that you walk through the link:https://docs.couchbase.com/userprofile-couchbase-mobile/standalone/userprofile/android/userprofile_basic.html[Fundamentals Tutorial] on using Couchbase Lite as a standalone database
+* If you are unfamiliar with the basics of Couchbase Lite, it is recommended that you walk through the
+https://docs.couchbase.com/userprofile-couchbase-mobile/standalone/userprofile/android/userprofile_basic.html[Fundamentals Tutorial]
+on using Couchbase Lite as a standalone database
 
-* link:https://developer.android.com/studio[Android Studio 3.4 or above]
-* Android device or emulator running API level 21 or above
-* Android SDK 26
-* Android Build Tools 26
-* link:https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html[JDK 8]
+* https://developer.android.com/studio[Android Studio]
+
+* Android device or emulator running API level 22 or above
+
+* Android SDK 29+
+
+* Android Build Tools 29+
+
+* https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html[JDK 8]
+
 * git (Optional)
 This is required if you would prefer to pull the source code from GitHub repo.
-** Create a link:https://github.com[free github account] if you don't already have one
-** git can be downloaded from link:https://git-scm.com/book/en/v2/Getting-Started-Installing-Git[git-scm.org]
+
+** Create a https://github.com[free github account] if you don't already have one
+
+** git can be downloaded from https://git-scm.com/book/en/v2/Getting-Started-Installing-Git[git-scm.org]
 
 
 == App Overview
@@ -61,28 +81,30 @@ This is required if you would prefer to pull the source code from GitHub repo.
 
 We will be working with a very simple "User Profile" app.
 If you have walked through the
-link:https://docs.couchbase.com/userprofile-couchbase-mobile/standalone/userprofile/android/userprofile_basic.html[Fundamentals tutorial], you will quickly realize that this version extends the functionality introduced in that tutorial.
+https://docs.couchbase.com/userprofile-couchbase-mobile/standalone/userprofile/android/userprofile_basic.html[Standalone tutorial], you will quickly realize that this version extends the functionality introduced in that tutorial.
 
-This app does the following
+This app does the following:
 
-* Allows users to log in and create or update his/her user profile information. You could do that in the link:https://docs.couchbase.com/userprofile-couchbase-mobile/standalone/userprofile/android/userprofile_basic.html[Fundamentals tutorial]
+* Allows users to log in and create or update his/her user profile information, which wasl also possible in the
+https://docs.couchbase.com/userprofile-couchbase-mobile/standalone/userprofile/android/userprofile_basic.html[Standalone tutorial]
 
-* As part of profile information, users can now selecting a `University` from a list of possible options.
+* As part of profile information, users can now select a `University` from a list of possible options. +
+This list of universities is queried (using the new Query API) from a local _prebuilt_ "University" Couchbase Lite database that is bundled in the app.
 
-The list of matching universities is queried (using the new Query API) from a local _prebuilt_ "University" Couchbase Lite database that is bundled in the app.
-The user profile information is persisted as a `Document` in the local Couchbase Lite database.
-So subsquently, when the user logs out and logs back in again, the profile information is loaded from the `Database`.
+* When saved, the user profile information is persisted as a `Document` in a local Couchbase Lite database.
+So, when the user logs back in again, the profile information is loaded from the `Database`.
 
-image::{imagesdir}/android/university_app_overview.gif[App Overview]
+image::university_app_overview.gif[App Overview]
 
 
 == Installation
 
 
-Clone the *_query_* branch of the `User Profile Demo` solution from GitHub. Assuming that you have
+Clone the *_query_* branch of the `User Profile Demo` solution from GitHub.
+Assuming that you have installed
 https://git-scm.com/downloads[Git]
-installed you can use the following command to clone the solution:
-+
+you can use the following command to do this:
+
 [source,bash]
 ----
 git clone -b query https://github.com/couchbaselabs/userprofile-couchbase-mobile-android.git
@@ -90,9 +112,9 @@ git clone -b query https://github.com/couchbaselabs/userprofile-couchbase-mobile
 
 === Installing Couchbase Lite
 
-This link:{githubsrc}[sample project] already contains the appropriate additions for downloading, and utilizing the Android Couchbase Lite dependency module.
-However, in the future, to include Couchbase Lite support within an Android app add the the following within link:{githubsrc}/app/build.gradle[app/build.gradle].
-+
+This {githubsrc}[sample project] already contains the appropriate additions for downloading, and utilizing the Android Couchbase Lite dependency module.
+However, in the future, to include Couchbase Lite support within an Android app add the the following within {githubsrc}/app/build.gradle[app/build.gradle].
+
 [source,gradle]
 ----
   dependencies {
@@ -104,27 +126,29 @@ However, in the future, to include Couchbase Lite support within an Android app 
 
 .Try it out
 ****
-. Open link:{githubsrc}/build.gradle[build.gradle] using Android Studio.
+. Open {githubsrc}/build.gradle[build.gradle] using Android Studio.
 . Build and run the project.
 . Verify that you see the login screen.
 +
-image::{imagesdir}/android/user_profile_login.png[User Profile Login Screen Image]
+image::user_profile_login.png[User Profile Login Screen Image]
 ****
 
 
 == Sample App Architecture
 
 
-The sample app follows the https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93presenter[MVP pattern], separating the internal data model, from a passive view through a presenter that handles the logic of our application and acts as the conduit between the model and the view.
+The sample app follows the
+https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93presenter[MVP pattern],
+separating the internal data model, from a passive view through a presenter that handles the logic of our application and acts as the conduit between the model and the view.
 
-image::{imagesdir}/android/mvp_architecture.png[MVP Architecture]
+image::mvp_architecture.png[MVP Architecture]
 
 In the Android Studio project, the code is structured by feature.
 You can select the Android option in the left navigator to view the files by package.
 
-image::{imagesdir}/android/mvp_as.png[MVP Android Studio]
+image::mvp_as.png[MVP Android Studio]
 
-Each package contains 3 different files:
+Each package comprises the following:
 
 * **Activity**: This is where all the view logic resides.
 
@@ -132,7 +156,7 @@ Each package contains 3 different files:
 
 * **Contract**: An interface that the `Presenter` and `Activity` implement.
 
-image::{imagesdir}/android/mvp_package.png[MVP Package]
+image::mvp_package.png[MVP Package]
 
 
 == Data Model
@@ -145,6 +169,7 @@ In addition to the standard JSON types, Couchbase Lite supports some special typ
 While it is not required or enforced, it is a recommended practice to include a _"type"_ property that can serve as a namespace for related.
 
 === The User Profile Document
+
 The app deals with a single `Document` with a _"type"_ property of _"user"_.
 The document ID is of the form _"user::<email>"_.
 
@@ -168,7 +193,7 @@ For the purpose of this tutorial the _"user"_ `Document` is first stored within 
 
 [source,java, sibs="attributes+, macros+"]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/profile/UserProfileActivity.java[tags=userprofile,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/profile/UserProfileActivity.java[tags=userprofile,indent=0]
 ----
 
 The `Map<String, Object>` object functions used as a data storage mechanism between the app's UI and the backing functionality of the Couchbase Lite `Document` object.
@@ -200,7 +225,7 @@ When _"university"_ `Document` is retrieved from the database it is stored withi
 
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[tags=university,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[tags=university,indent=0]
 ----
 
 
@@ -221,24 +246,26 @@ It will be be in your app project bundle
 
 * In the `universities.zip` file within the `Assets` folder.
 +
-image::{imagesdir}/android/cblite_location.png[Prebuilt Database Location]
+image::cblite_location.png[Prebuilt Database Location]
 +
 Note: The cblite folder will be extracted from the zip file.
 
 === Loading the Prebuilt Database
-* Open the link:{githubsrc}/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[*DatabaseManager.java*] file and locate the `openPrebuiltDatabase()` function.
-The prebuilt database is common to all users of the app (on the device). So it will be loaded once and shared by all users on the device.
+
+* Open the {githubsrc}/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[*DatabaseManager.java*] file and locate the `openPrebuiltDatabase()` function.
+The prebuilt database is common to all users of the app (on the device).
+So it will be loaded once and shared by all users on the device.
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=openPrebuiltDatabase,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=openPrebuiltDatabase,indent=0]
 ----
 
 * First, we create an instance of `DatabaseConfiguration` object and specify the path where the database would be located
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=prebuiltdbconfig,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=prebuiltdbconfig,indent=0]
 ----
 
 * Then we determine if the "universities" database already exists at the specified location.
@@ -248,44 +275,50 @@ If the database is already present at the specified Database location, we simply
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=prebuiltdbopen,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=prebuiltdbopen,indent=0]
 ----
 
 === Indexing the Prebuilt Database
+
 * Creating indexes for non-FTS based queries is optional.
 However, in order to speed up queries, you can create indexes on the properties that you would query against.
 Indexing is handled eagerly.
 
-* In the link:{githubsrc}/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[*DatabaseManager.java*] file, locate the `createUniversityDatabaseIndexes()` function.
+* In the {githubsrc}/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[*DatabaseManager.java*] file, locate the `createUniversityDatabaseIndexes()` function.
 We create an index on the `name` and `location` properties of the documents in the _university_ database.
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=createUniversityDatabaseIndexes,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=createUniversityDatabaseIndexes,indent=0]
 ----
 
 === Closing the Database
+
 When a user logs out, we close the Prebuilt Database along with other user-specific databases
 
-* In the link:{githubsrc}/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[*DatabaseManager.java*] file, locate the `closePrebuiltDatabase()` function.
+* In the {githubsrc}/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[*DatabaseManager.java*] file, locate the `closePrebuiltDatabase()` function.
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=closePrebuiltDatabase,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=closePrebuiltDatabase,indent=0]
 ----
 
 * Closing the database is pretty straightforward
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=prebuiltdbclose,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/util/DatabaseManager.java[tags=prebuiltdbclose,indent=0]
 ----
 
 .Try It Out
 ****
 . The app should be running in the simulator
-. Log into the app with any email Id and password. Let's use the values _"demo@example.com"_ and _"password"_ for user Id and password fields respectively. If this is the first time that _any_ user is signing in to the app, the pre-built database will be loaded from the App Bundle. In addition, new user-specific Database will be created / opened.
-. Confirm that the console log output has a message similar to the one below. In my example, I am logging in with a user email Id of _"demo@example.com"_.
+. Log into the app with any email Id and password.
+Let's use the values _"demo@example.com"_ and _"password"_ for user Id and password fields respectively.
+If this is the first time that _any_ user is signing in to the app, the pre-built database will be loaded from the App Bundle.
+In addition, new user-specific Database will be created / opened.
+. Confirm that the console log output has a message similar to the one below.
+In my example, I am logging in with a user email Id of _"demo@example.com"_.
 +
 [source,bash]
 ----
@@ -302,24 +335,28 @@ The Query API in Couchbase Lite is extensive.
 In our app, we will be using the `QueryBuilder` API to make a simple _pattern matching_ query using the `like` operator.
 
 === Fetching University Document
+
 From the "Your Profile" screen, when the user taps on the "University" cell, a search screen is displayed where the user can enter the search criteria (name and optionally, the location) for the university.
 When the search criteria is entered, the local _"universities"_ Database is queried for <<The "University" Document>> documents that match the specified search criteria.
 
-* Open the link:{githubsrc}/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[*UniversitiesPresenter.java*] file and locate the `fetchUniversities` function.
+* Open the {githubsrc}/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[*UniversitiesPresenter.java*] file and locate the `fetchUniversities` function.
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[tags=fetchUniversities,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[tags=fetchUniversities,indent=0]
 ----
 
 * We build the Query using the `QueryBuilder` API that will look for Documents that match the specified criteria.
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[tags=buildquery,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[tags=buildquery,indent=0]
 ----
 +
-<1> Build a `QueryExpression` that uses the `like` operator to look for the specified _"name"_ string in the _"name"_ property. Notice couple of things here: (a) The use of *wildcard "%" operator* to denote that we are looking for the presence of the string anywhere in the _"name"_ property and (b) The use of `Function.lower()` to convert the search string into lowercase equivalent. Since `like` operator does _case-senstive matching_, we convert the search string and the property value to lowercase equivalents and compare the two.
+<1> Build a `QueryExpression` that uses the `like` operator to look for the specified _"name"_ string in the _"name"_ property. Notice couple of things here: +
+(a) The use of *wildcard "%" operator* to denote that we are looking for the presence of the string anywhere in the _"name"_ property +
+(b) The use of `Function.lower()` to convert the search string into lowercase equivalent.
+This is because the `like` operator does _case-sensitive matching_, so we must convert the search string and the property value to lowercase equivalents and compare the two.
 <2> If the location criteria was specified in the search, then Build a `QueryExpression` that uses the `like` operator to look for the specified _"location"_ string in the _"location"_ property.
 <3> The `SelectResult.all()` specifiees that we are interested in all properties in Documents that match the specified criteria
 <4> The `DataSource.database(db)` specified the Data Source
@@ -329,7 +366,7 @@ include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/universit
 +
 [source,java]
 ----
-include::{examplesdir}/src/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[tags=runquery,indent=0]
+include::example$/src/app/src/main/java/com/couchbase/userprofile/universities/UniversitiesPresenter.java[tags=runquery,indent=0]
 ----
 <1> Create an instance of <<UniversityRecord>> (via `HashMap`).
 <2> Use specific type getters to fetch property values.
@@ -340,29 +377,40 @@ This returns a Couchbase Lite `ArrayObject` type.
 .Try It Out
 ****
 . You should have followed the steps discussed in the "Try It Out" section under <<Loading the Prebuilt Database>>
+
 . Tap on "University" table cell
+
 . You should see a screen show that allows you enter the search criteria for the university
+
 . Enter "Missouri State" for name . You can optionally enter "united states" for location
+
 . Confirm that you see a list of universities that match the criteria
 +
-image::{imagesdir}/android/university_list.gif[University List]
+image::university_list.gif[University List]
 +
 . Select a university
+
 . Press "Done" button
+
 . Confirm that the university you selected shows up in the University table cell
 +
-image::{imagesdir}/android/university_selection.gif[University Selection]
+image::university_selection.gif[University Selection]
 +
 . You can optionally fill in other entries in the User Profile screen
+
 . Tap "Done" button
+
 . Confirm that you see an alert message "Succesfully Updated Profile". The Document will be updated this time.
+
 . Tap "Log Off" and log out of the app
+
 . Log back into the app with the same user email Id and password that you used earlier.
 In my example, I used _"demo@example.com"_ and _"password"_.
 So I will log in with those credentials again.
+
 . Confirm that you see the profile screen  with the _university_ value that you set earlier.
 +
-image::{imagesdir}/android/profile_update.gif[Log Off and Log Back On]
+image::profile_update.gif[Log Off and Log Back On]
 ****
 
 
@@ -370,15 +418,17 @@ image::{imagesdir}/android/profile_update.gif[Log Off and Log Back On]
 
 Congratulations on completing this tutorial!
 
-This tutorial walked you through an example of how to use a pre-built Couchbase Lite database. We looked at a simple Query example. Check out the following links for further details on the Query API.
+This tutorial walked you through an example of how to use a pre-built Couchbase Lite database.
+We looked at a simple Query example.
+Check out the following links for further details on the Query API.
 
 .Further Reading
 ****
-* link:https://blog.couchbase.com/sql-for-json-query-interface-couchbase-mobile/[Fundamentals of the Couchbase Lite 2.0 Query API]
+* https://blog.couchbase.com/sql-for-json-query-interface-couchbase-mobile/[Fundamentals of the Couchbase Lite 2.0 Query API]
 
-* link:https://blog.couchbase.com/querying-array-collections-couchbase-mobile/[Handling Arrays in Queries]
+* https://blog.couchbase.com/querying-array-collections-couchbase-mobile/[Handling Arrays in Queries]
 
-* link:https://blog.couchbase.com/full-text-search-couchbase-mobile-2-0/[Couchbase Lite 2.0 Full Text Search API]
+* https://blog.couchbase.com/full-text-search-couchbase-mobile-2-0/[Couchbase Lite 2.0 Full Text Search API]
 
-* link:https://blog.couchbase.com/join-queries-couchbase-mobile/[Couchbase Lite 2.0 JOIN Query]
+* https://blog.couchbase.com/join-queries-couchbase-mobile/[Couchbase Lite 2.0 JOIN Query]
 ****
