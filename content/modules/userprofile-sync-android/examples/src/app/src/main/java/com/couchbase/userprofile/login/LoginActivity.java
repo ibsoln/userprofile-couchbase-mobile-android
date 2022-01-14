@@ -1,7 +1,9 @@
 package com.couchbase.userprofile.login;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +12,8 @@ import android.widget.EditText;
 import com.couchbase.userprofile.R;
 import com.couchbase.userprofile.profile.UserProfileActivity;
 import com.couchbase.userprofile.util.DatabaseManager;
+
+import java.security.Permissions;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -24,7 +28,6 @@ public class LoginActivity extends AppCompatActivity {
         usernameInput = findViewById(R.id.usernameInput);
         passwordInput = findViewById(R.id.passwordInput);
     }
-
     public void onLoginTapped(View view) {
         if (usernameInput.length() > 0 && passwordInput.length() > 0) {
             DatabaseManager dbMgr = DatabaseManager.getSharedInstance();

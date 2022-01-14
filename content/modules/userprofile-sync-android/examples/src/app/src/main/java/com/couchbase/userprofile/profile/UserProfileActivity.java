@@ -1,5 +1,7 @@
 package com.couchbase.userprofile.profile;
 
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -138,22 +140,45 @@ public class UserProfileActivity extends AppCompatActivity implements UserProfil
     }
 
     private byte[] getImageViewBytes() {
+
         byte[] imageBytes = null;
 
-        BitmapDrawable bmDrawable = (BitmapDrawable) imageView.getDrawable();
+        if (checkPermissions("PICK_FROM_GALLERY")) {
 
-        if (bmDrawable != null) {
-            Bitmap bitmap = bmDrawable.getBitmap();
+            BitmapDrawable bmDrawable = (BitmapDrawable) imageView.getDrawable();
 
-            if (bitmap != null) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                imageBytes = baos.toByteArray();
+            if (bmDrawable != null) {
+                Bitmap bitmap = bmDrawable.getBitmap();
+
+                if (bitmap != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    imageBytes = baos.toByteArray();
+                }
             }
         }
-
         return imageBytes;
+
     }
+
+    private boolean checkPermissions(String permission) {
+        // Function to check and request permission
+        int requestCode = 0;
+        boolean result = false;
+        // Checking if permission is not granted
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+            if (requestCode == PERMISSION_GRANTED) {
+                result = true;
+            }
+        }
+        else {
+            Toast.makeText(this, "Permission already granted", Toast.LENGTH_SHORT).show();
+            result = true;
+        }
+        return result;
+    }
+
 
     @Override
     public void showProfile(Map<String, Object> profile) {
